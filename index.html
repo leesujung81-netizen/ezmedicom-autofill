@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>이지메디컴 결재상신 - 견적비교 자동입력</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&family=Noto+Sans+KR:wght@400;500;700&family=Nanum+Gothic+Coding:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef1f6;
+    --surface: #ffffff;
+    --surface-2: #f6f8fb;
+    --border: #d8dee6;
+    --border-strong: #b7c1cf;
+    --text: #1a2233;
+    --text-sub: #5f6b7d;
+    --accent: #22468f;
+    --accent-hover: #1a3872;
+    --accent-soft: #e7edf7;
+    --stamp: #b0332f;
+    --stamp-hover: #942925;
+    --ok: #1f7a4d;
+    --ok-soft: #e5f3ea;
+    --warn: #9a6b12;
+    --warn-soft: #fbf1de;
+    --code-bg: #101521;
+    --code-text: #d6def0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #11151e;
+      --surface: #1a2030;
+      --surface-2: #161b28;
+      --border: #2b3345;
+      --border-strong: #3c465c;
+      --text: #e7ebf3;
+      --text-sub: #9aa5b8;
+      --accent: #7fa0e6;
+      --accent-hover: #9bb6ec;
+      --accent-soft: #1f2c47;
+      --stamp: #e2726c;
+      --stamp-hover: #ea8a84;
+      --ok: #4fbf8c;
+      --ok-soft: #16281f;
+      --warn: #e0b667;
+      --warn-soft: #2c250f;
+      --code-bg: #0a0d14;
+      --code-text: #cfd8ec;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #11151e;
+    --surface: #1a2030;
+    --surface-2: #161b28;
+    --border: #2b3345;
+    --border-strong: #3c465c;
+    --text: #e7ebf3;
+    --text-sub: #9aa5b8;
+    --accent: #7fa0e6;
+    --accent-hover: #9bb6ec;
+    --accent-soft: #1f2c47;
+    --stamp: #e2726c;
+    --stamp-hover: #ea8a84;
+    --ok: #4fbf8c;
+    --ok-soft: #16281f;
+    --warn: #e0b667;
+    --warn-soft: #2c250f;
+    --code-bg: #0a0d14;
+    --code-text: #cfd8ec;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;
+    padding: 32px 20px 56px;
+    line-height: 1.6;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+
+  .page { max-width: 760px; margin: 0 auto; }
+
+  .letterhead {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    border-bottom: 2px solid var(--text);
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .eyebrow {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--text-sub);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .letterhead h1 {
+    font-family: "Noto Serif KR", serif;
+    font-weight: 700;
+    font-size: clamp(22px, 4vw, 30px);
+    margin: 0 0 8px;
+    text-wrap: balance;
+  }
+  .letterhead .desc { color: var(--text-sub); font-size: 14px; margin: 0; }
+  .version-tag {
+    font-family: "Nanum Gothic Coding", monospace;
+    font-size: 12px;
+    color: var(--text-sub);
+    white-space: nowrap;
+    padding-bottom: 4px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-family: "Noto Serif KR", serif;
+    font-size: 17px;
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .card p { margin: 0 0 10px; font-size: 14.5px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card ul { margin: 8px 0 0; padding-left: 20px; font-size: 14.5px; }
+  .card li { margin-bottom: 6px; }
+  .card li:last-child { margin-bottom: 0; }
+
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-ghost { background: var(--surface-2); color: var(--text); border-color: var(--border-strong); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  .callout {
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    margin-top: 14px;
+  }
+  .callout.ok { background: var(--ok-soft); color: var(--ok); }
+  .callout.warn { background: var(--warn-soft); color: var(--warn); }
+
+  code, .path {
+    font-family: "Nanum Gothic Coding", monospace;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 13px;
+    word-break: break-all;
+  }
+
+  .btn-label {
+    display: block;
+    font-family: "Noto Serif KR", serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin: 0 0 6px;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--text-sub);
+    font-size: 12px;
+    margin-top: 32px;
+  }
+  footer a { color: var(--text-sub); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="letterhead">
+    <div>
+      <span class="eyebrow">MDVAN 결재상신 도우미 · TAMPERMONKEY 유저스크립트</span>
+      <h1>견적비교 자동입력</h1>
+      <p class="desc">결재상신 화면에서 수의시담 견적 데이터를 불러와 품의내용에 자동으로 채워줍니다.</p>
+    </div>
+    <span class="version-tag" id="verTag">v1.1</span>
+  </div>
+
+  <div class="card">
+    <h2>이 도구가 하는 일</h2>
+    <p>MDvan(<code>b2b.mdvan.net</code>) 결재상신 상세 화면을 열면, 품의내용 입력창 위에 <b>[견적비교 자동입력]</b> 버튼이 나타납니다(수의시담 견적요청이 연결된 건에서만 표시됩니다).</p>
+    <ul>
+      <li>버튼을 누르면 해당 건의 수의시담 견적 데이터를 조회합니다.</li>
+      <li>공급사명과 견적가를 <b>낮은 가격순</b>으로 정리합니다.</li>
+      <li>품의내용의 <b>"9. 가격조사기준"</b> 항목 바로 아래에 자동으로 삽입합니다.</li>
+    </ul>
+    <div class="callout warn">※ "9. 가격조사기준" 항목을 먼저 작성해 두어야 그 아래에 내용이 들어갑니다. 이미 "견적비교" 항목이 있으면 다시 추가할지 확인창이 뜹니다.</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step-num">1</span>Tampermonkey 설치 (한 번만)</h2>
+    <p>이미 설치되어 있다면 이 단계는 건너뛰세요.</p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo" target="_blank" rel="noopener">Chrome / Edge용 설치</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step-num">2</span>스크립트 설치</h2>
+    <p>아래 버튼을 누르면 Tampermonkey가 설치 화면을 자동으로 띄워줍니다.</p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="./ezmedicom-autofill.user.js">스크립트 설치하기</a>
+    </div>
+    <div class="callout ok">설치 후에는 새 버전이 올라올 때마다 Tampermonkey가 자동으로 업데이트를 확인합니다. 따로 다시 설치할 필요 없습니다.</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step-num">3</span>사용하기</h2>
+    <ul>
+      <li>MDvan 결재상신 상세 화면으로 이동합니다.</li>
+      <li>수의시담 견적이 연결된 건이면 품의내용 입력창 위에 <b>[견적비교 자동입력]</b> 버튼이 보입니다.</li>
+      <li>버튼을 눌러 자동으로 채워진 내용을 확인하고, 필요하면 직접 다듬은 뒤 상신합니다.</li>
+    </ul>
+  </div>
+
+  <footer>
+    이지메디컴 결재상신 · 견적비교 자동입력 · 구매팀 내부 도구<br>
+    문의: 이수정
+  </footer>
+
+</div>
+</body>
+</html>
